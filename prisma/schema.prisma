@@ -1,0 +1,27 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  messageId String   @unique
+  topicArn  String
+  subject   String?
+  message   String
+  timestamp DateTime @default(now())
+}
+
+model SnsNotification {
+  id                 Int      @id @default(autoincrement())
+  status             String
+  data               DateTime
+  email_destination  String
+  email_from         String
+  subject            String
+  createdAt          DateTime @default(now())
+}
