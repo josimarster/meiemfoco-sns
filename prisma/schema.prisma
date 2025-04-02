@@ -25,3 +25,8 @@ model SnsNotification {
   subject            String
   createdAt          DateTime @default(now())
 }
+
+model Subscription {
+  id                 Int      @id @default(autoincrement())
+  message            String   @db.Text
+}
