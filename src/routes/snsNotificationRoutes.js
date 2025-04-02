@@ -35,38 +35,34 @@ router.post('/', async (req, res) => {
   try {
     const { eventType, click, mail } = req.body;
 
-    // O SNS envia os dados em um formato específico que precisamos extrair
-    const newSnsNotification = await prisma.snsNotification.create({
-      data: {
-        status: eventType,
-        data: new Date(click.timestamp), // Convertendo o timestamp para um objeto Date
-        email_destination: mail.destination[0], // Pegando o primeiro destinatário
-        email_from: mail.source,
-        subject: mail.commonHeaders.subject
-      }
-    });
-    
-    res.status(201).json(newSnsNotification);
+    console.log(eventType);
+
+    if ('Type' in req.body) {
+      // O SNS envia os dados em um formato específico que precisamos extrair
+      const newSubscription = await prisma.subscription.create({
+        data: {
+          message: JSON.stringify(req.body)
+        }
+      });
+
+      res.status(201).json(newSubscription);
+    } else {
+      
+      // O SNS envia os dados em um formato específico que precisamos extrair
+      const newSnsNotification = await prisma.snsNotification.create({
+        data: {
+          status: eventType,
+          data: new Date(click.timestamp), // Convertendo o timestamp para um objeto Date
+          email_destination: mail.destination[0], // Pegando o primeiro destinatário
+          email_from: mail.source,
+          subject: mail.commonHeaders.subject
+        }
+      });
+      
+      res.status(201).json(newSnsNotification);
+    }
   } catch (error) {
     console.error("Erro ao criar sns notificação:", error);
-    res.status(400).json({ error: error.message });
-  }
-});
-
-// Criar um novo subscription
-router.post('/subscription', async (req, res) => {
-  try {
-
-    // O SNS envia os dados em um formato específico que precisamos extrair
-    const newSubscription = await prisma.subscription.create({
-      data: {
-        subject: JSON.stringify(req.body)
-      }
-    });
-    
-    res.status(201).json(newSubscription);
-  } catch (error) {
-    console.error("Erro ao criar subscription:", error);
     res.status(400).json({ error: error.message });
   }
 });
