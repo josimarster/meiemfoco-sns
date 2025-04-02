@@ -7,7 +7,12 @@ const prisma = new PrismaClient();
 // Listar todos os usuários
 router.get('/list', async (req, res) => {
   try {
-    const notifications = await prisma.snsNotification.findMany();
+    const notifications = await prisma.snsNotification.findMany({
+        take: 5000,
+        orderBy: {
+          id: 'desc' // ou 'data' se quiser ordenar por data
+        }
+      });
     res.json(notifications);
   } catch (error) {
     res.status(500).json({ error: error.message });
