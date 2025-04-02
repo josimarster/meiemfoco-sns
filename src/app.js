@@ -28,11 +28,15 @@ app.use((err, req, res, next) => {
 module.exports = app;
 
 // Importar rotas
-//const userRoutes = require('./routes/userRoutes');
+//const bodyParser = require('body-parser');
 const snsNotificationRoutes = require('./routes/snsNotificationRoutes');
 
-// ... outros middlewares
+// Primeiro aplica o parser só nessa rota
+app.use('/api/sns-notification', bodyParser.text({ type: 'text/plain' }));
 
-// Usar rotas
-//app.use('/api/users', userRoutes);
+// Depois conecta a rota que processa os dados
 app.use('/api/sns-notification', snsNotificationRoutes);
+
+// Depois o resto
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));

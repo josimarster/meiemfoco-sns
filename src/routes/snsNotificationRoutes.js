@@ -30,41 +30,41 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// Criar uma nova sns notification
 router.post('/', async (req, res) => {
-  try {
-    const { eventType, click, mail } = req.body;
-
-    console.log(eventType);
-
-    if ('Type' in req.body) {
-      // O SNS envia os dados em um formato específico que precisamos extrair
-      const newSubscription = await prisma.subscription.create({
-        data: {
-          message: JSON.stringify(req.body)
-        }
-      });
-
-      res.status(201).json(newSubscription);
-    } else {
-      
-      // O SNS envia os dados em um formato específico que precisamos extrair
-      const newSnsNotification = await prisma.snsNotification.create({
-        data: {
-          status: eventType,
-          data: new Date(click.timestamp), // Convertendo o timestamp para um objeto Date
-          email_destination: mail.destination[0], // Pegando o primeiro destinatário
-          email_from: mail.source,
-          subject: mail.commonHeaders.subject
-        }
-      });
-      
-      res.status(201).json(newSnsNotification);
+    try {
+      // Parse manual se veio como string
+      let data = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
+  
+      console.log('📥 Recebido do SNS:', data);
+  
+      if (data.Type === 'SubscriptionConfirmation') {
+        const axios = require('axios');
+        await axios.get(data.SubscribeURL);
+        console.log('✅ Assinatura confirmada.');
+        return res.status(200).json({ message: 'Assinatura confirmada' });
+      }
+  
+      if (data.Type === 'Notification') {
+        const message = JSON.parse(data.Message);
+  
+        const newSnsNotification = await prisma.snsNotification.create({
+          data: {
+            status: message.eventType,
+            data: new Date(message.click?.timestamp || new Date()),
+            email_destination: message.mail.destination[0],
+            email_from: message.mail.source,
+            subject: message.mail.commonHeaders.subject
+          }
+        });
+  
+        return res.status(201).json(newSnsNotification);
+      }
+  
+      return res.status(200).json({ message: 'Outro tipo de mensagem SNS' });
+    } catch (error) {
+      console.error('❌ Erro ao processar SNS:', error);
+      res.status(400).json({ error: error.message });
     }
-  } catch (error) {
-    console.error("Erro ao criar sns notificação:", error);
-    res.status(400).json({ error: error.message });
-  }
-});
-
-module.exports = router;
+  });
+  
+  module.exports = router;
