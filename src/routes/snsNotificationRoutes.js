@@ -53,7 +53,8 @@ router.post('/', async (req, res) => {
             data: new Date(message.click?.timestamp || new Date()),
             email_destination: message.mail.destination[0],
             email_from: message.mail.source,
-            subject: message.mail.commonHeaders.subject
+            subject: message.mail.commonHeaders.subject,
+            messageId: message.messageId
           }
         });
   

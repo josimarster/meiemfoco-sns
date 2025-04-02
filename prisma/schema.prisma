@@ -23,6 +23,7 @@ model SnsNotification {
   email_destination  String
   email_from         String
   subject            String
+  messageId          String
   createdAt          DateTime @default(now())
 }
 
