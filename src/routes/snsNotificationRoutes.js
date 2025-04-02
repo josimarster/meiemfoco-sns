@@ -54,7 +54,7 @@ router.post('/', async (req, res) => {
             email_destination: message.mail.destination[0],
             email_from: message.mail.source,
             subject: message.mail.commonHeaders.subject,
-            messageId: message.messageId
+            messageId: message.mail.messageId
           }
         });
   
